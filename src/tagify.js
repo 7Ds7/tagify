@@ -89,6 +89,19 @@ Tagify.prototype = {
         return parseHTML( template.apply(this, data) )
     },
 
+    /**
+     * Announces a message to screen readers via the live region
+     * @param {String} message
+     */
+    announce(message){
+        if( !message ) return
+        var liveRegion = this.DOM.scope.querySelector('[aria-live="polite"]')
+        if( liveRegion ){
+            liveRegion.textContent = ''
+            setTimeout(()=>{ liveRegion.textContent = message }, 100)
+        }
+    },
+
     set whitelist( arr ){
         const isArray = arr && Array.isArray(arr)
         this.settings.whitelist = isArray ? arr : []
@@ -300,6 +313,7 @@ Tagify.prototype = {
             DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector)
             input.parentNode.insertBefore(DOM.scope, input)
             input.tabIndex = -1; // do not allow focus or typing directly, once tagified
+            input.setAttribute('aria-hidden', 'true')
         }
 
         // fixes tagify nested inside a <label> tag from getting focus when clicked on
@@ -420,6 +434,8 @@ Tagify.prototype = {
             isValid = true
 
         this.toggleClass(this.settings.classNames.tagInvalid, !isValid)
+        this.DOM.scope.setAttribute('aria-invalid', !isValid)
+        this.DOM.input.setAttribute('aria-invalid', !isValid)
         this.DOM.scope.title = isValid ? '' : validation
     },
 
@@ -685,6 +701,7 @@ Tagify.prototype = {
 
         // update DOM
         tagElm.parentNode.replaceChild(newTagElm, tagElm)
+        newTagElm.setAttribute('aria-selected', 'true')
         this.updateValueByDOMTags()
         return newTagElm
     },
@@ -790,6 +807,7 @@ Tagify.prototype = {
             var isValid = !this.state.inputText || this.validateTag({value:this.state.inputText}) === true;
 
             this.DOM.input.classList.toggle(this.settings.classNames.inputInvalid, !isValid)
+            this.DOM.input.setAttribute('aria-invalid', !isValid)
 
             return isValid
         },
@@ -1056,7 +1074,13 @@ Tagify.prototype = {
     },
 
     hasMaxTags(){
-        return this.value.length >= this.settings.maxTags
+        var exceeded = this.value.length >= this.settings.maxTags
+        if( exceeded && !this.state.maxTagsAnnounced ){
+            this.announce(this.TEXTS.exceed)
+            this.state.maxTagsAnnounced = true
+            setTimeout(()=>{ this.state.maxTagsAnnounced = false }, 2000)
+        }
+        return exceeded
             ? this.TEXTS.exceed
             : false
     },
@@ -1513,6 +1537,7 @@ Tagify.prototype = {
         if( isValid && isValid === true ){
             // update state
             this.value.push(tagData)
+            tagElm.setAttribute('aria-selected', 'true')
         }
         else{
             this.trigger('invalid', {data:tagData, index:this.value.length, tag:tagElm, message:isValid})
@@ -1633,6 +1658,9 @@ Tagify.prototype = {
         addedTags.forEach(({tagElm, tagData}) =>
             this.trigger('add', {tag:tagElm, index:this.getTagIdx(tagData), data:tagData})
         )
+
+        if( addedTags.length )
+            this.announce(`${addedTags.length} tag${addedTags.length > 1 ? 's' : ''} added`)
 
         this.update()
 
@@ -1997,6 +2025,9 @@ Tagify.prototype = {
 
                     if( _s.mode == 'select' && _s.userInput )
                         this.setContentEditable(true);
+
+                    if( tagsToRemove.length )
+                        this.announce(`${tagsToRemove.length} tag${tagsToRemove.length > 1 ? 's' : ''} removed`)
                 }
 
                 // "removeNode" should be called AFTER "removeTagsFromValue" has been called,
