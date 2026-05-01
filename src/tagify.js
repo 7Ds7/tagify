@@ -1076,9 +1076,11 @@ Tagify.prototype = {
     hasMaxTags(){
         var exceeded = this.value.length >= this.settings.maxTags
         if( exceeded && !this.state.maxTagsAnnounced ){
-            this.announce(this.TEXTS.exceed)
             this.state.maxTagsAnnounced = true
-            setTimeout(()=>{ this.state.maxTagsAnnounced = false }, 2000)
+            setTimeout(()=>{
+                this.state.maxTagsAnnounced = false
+                this.announce(this.TEXTS.exceed);
+            }, 2000)
         }
         return exceeded
             ? this.TEXTS.exceed
@@ -1660,7 +1662,7 @@ Tagify.prototype = {
         )
 
         if( addedTags.length )
-            this.announce(`${addedTags.length} tag${addedTags.length > 1 ? 's' : ''} added`)
+            this.announce(`${addedTags.map( o => o?.tagData?.value).join(',')} added`)
 
         this.update()
 
@@ -2027,7 +2029,7 @@ Tagify.prototype = {
                         this.setContentEditable(true);
 
                     if( tagsToRemove.length )
-                        this.announce(`${tagsToRemove.length} tag${tagsToRemove.length > 1 ? 's' : ''} removed`)
+                        this.announce(`${tagsToRemove.map( o => o.data.value).join(',')} removed`)
                 }
 
                 // "removeNode" should be called AFTER "removeTagsFromValue" has been called,

@@ -46,7 +46,6 @@ export default {
                     contenteditable='false'
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
-                    role="option"
                     aria-selected="false"
                     ${this.getAttributes(tagData)}>
             <x tabIndex="0" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
@@ -60,9 +59,11 @@ export default {
         var _sd = settings.dropdown,
             isManual = _sd.position == 'manual';
 
-        return `<div class="${isManual ? '' : settings.classNames.dropdown } ${_sd.classname}" role="listbox" aria-multiselectable="true" aria-label="${_sd.RTL ? 'הצעות' : 'Suggestions'}" id="tagify-dd" dir="${_sd.RTL ? 'rtl' : ''}">
+        return `<div class="${isManual ? '' : settings.classNames.dropdown } ${_sd.classname}" role="listbox" aria-labelledby="dropdown" dir="${_sd.RTL ? 'rtl' : ''}">
                     <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`
+
+
     },
 
     dropdownContent(HTMLContent) {
