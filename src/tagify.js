@@ -300,6 +300,8 @@ Tagify.prototype = {
         var DOM  = this.DOM,
             labelWrapper = input.closest('label');
 
+        this.__uid = input.id || ('tagify-' + getUID())
+
         if( this.settings.mixMode.integrated ){
             DOM.originalInput = null;
             DOM.scope = input;

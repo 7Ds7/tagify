@@ -8,15 +8,19 @@ export default {
      */
     wrapper(input, _s){
         var lang = input.getAttribute('lang') || document.documentElement.lang || ''
-        return `<tags class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
+        return `<tags id="${this.__uid}"
+                    class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
                     ${_s.readonly ? 'readonly' : ''}
                     ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
                     ${_s.mode === 'select' ? "spellcheck='false'" : ''}
                     tabIndex="-1"
                     role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="${_s.a11y.inputAriaLabel}"
                     aria-autocomplete="list"
-                    aria-owns=""
+                    aria-owns="${this.__uid}-dd"
                     ${lang ? `lang="${lang}"` : ''}>
                     ${this.settings.templates.input.call(this)}
                 ${ZERO_WIDTH_UNICODE_CHAR}
@@ -36,7 +40,7 @@ export default {
                     aria-label="${_s.a11y.inputAriaLabel}"
                     aria-autocomplete="list"
                     aria-multiline="${_s.mode=='mix'?true:false}"
-                    aria-controls="tagify-dd"
+                    aria-controls="${this.__uid}-dd"
                     aria-activedescendant=""
                     aria-keyshortcuts="ArrowUp ArrowDown Enter Escape Tab"></span>`
     },
@@ -59,7 +63,7 @@ export default {
         var _sd = settings.dropdown,
             isManual = _sd.position == 'manual';
 
-        return `<div class="${isManual ? '' : settings.classNames.dropdown } ${_sd.classname}" role="listbox" aria-labelledby="dropdown" dir="${_sd.RTL ? 'rtl' : ''}">
+        return `<div id="${this.__uid}-dd" class="${isManual ? '' : settings.classNames.dropdown } ${_sd.classname}" role="listbox" aria-labelledby="${this.__uid}" aria-multiselectable="${settings.mode === 'select' ? 'false' : 'true'}" dir="${_sd.RTL ? 'rtl' : ''}">
                     <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`
 

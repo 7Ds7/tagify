@@ -213,7 +213,7 @@ export default {
         if( _s.dropdown.enabled === false ) return this;
 
         this.DOM.scope.setAttribute("aria-expanded", true)
-        this.DOM.scope.setAttribute('aria-owns', 'tagify-dd')
+        this.DOM.scope.setAttribute('aria-owns', this.__uid + '-dd')
 
         // if the dropdown has yet to be appended to the DOM,
         // append the dropdown to the body element & handle events
