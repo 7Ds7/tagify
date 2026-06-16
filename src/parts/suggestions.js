@@ -1,4 +1,4 @@
-import { isObject, escapeHTML, extend, unaccent, logger } from './helpers'
+import { isObject, escapeHTML, extend, unaccent, logger, getUID } from './helpers'
 
 
 /**
@@ -285,6 +285,7 @@ export default {
         if( !elm ){
             this.state.ddItemData = null
             this.state.ddItemElm = null
+            this.DOM.input.setAttribute('aria-activedescendant', '')
             this.input.autocomplete.suggest.call(this)
             return;
         }
@@ -296,6 +297,7 @@ export default {
         // this.DOM.dropdown.querySelectorAll("." + this.settings.classNames.dropdownItemActive).forEach(activeElm => activeElm.classList.remove(className));
         elm.classList.add(className);
         elm.setAttribute("aria-selected", true)
+        this.DOM.input.setAttribute('aria-activedescendant', elm.getAttribute('id') || (elm.setAttribute('id', getUID()), elm.id))
 
         if( adjustScroll )
             elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight

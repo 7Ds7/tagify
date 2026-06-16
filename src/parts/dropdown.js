@@ -165,6 +165,7 @@ export default {
 
 
         scope.setAttribute("aria-expanded", false)
+        scope.querySelector('[role="textbox"]').setAttribute('aria-activedescendant', '')
         dropdown.parentNode.removeChild(dropdown)
 
         // scenario: clicking the scope to show the dropdown, clicking again to hide -> calls dropdown.hide() and then re-focuses the input
@@ -212,6 +213,7 @@ export default {
         if( _s.dropdown.enabled === false ) return this;
 
         this.DOM.scope.setAttribute("aria-expanded", true)
+        this.DOM.scope.setAttribute('aria-owns', this.__uid + '-dd')
 
         // if the dropdown has yet to be appended to the DOM,
         // append the dropdown to the body element & handle events

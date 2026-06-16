@@ -73,7 +73,11 @@ const TagifyWrapper = ({
     tagifyRef,
     placeholder = "",
     defaultValue,
-    showDropdown
+    showDropdown,
+    'aria-label': ariaLabel,
+    'aria-describedby': ariaDescribedBy,
+    'aria-invalid': ariaInvalid,
+    ...restProps
 }) => {
     const mountedRef = useRef()
     const inputElmRef = useRef()
@@ -90,7 +94,11 @@ const TagifyWrapper = ({
         disabled,
         autoFocus,
         placeholder,
-    }), [])
+        'aria-label': ariaLabel,
+        'aria-describedby': ariaDescribedBy,
+        'aria-invalid': ariaInvalid,
+        ...restProps
+    }), [name, children, _value, className, readOnly, disabled, autoFocus, placeholder, ariaLabel, ariaDescribedBy, ariaInvalid, restProps])
 
     const setFocus = useCallback(() => {
         autoFocus && tagify.current && tagify.current.DOM.input.focus()

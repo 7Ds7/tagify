@@ -7,14 +7,24 @@ export default {
      * @param {Object}     settings  Tagify instance settings Object
      */
     wrapper(input, _s){
-        return `<tags class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
+        var lang = input.getAttribute('lang') || document.documentElement.lang || ''
+        return `<tags id="${this.__uid}"
+                    class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
                     ${_s.readonly ? 'readonly' : ''}
                     ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
                     ${_s.mode === 'select' ? "spellcheck='false'" : ''}
-                    tabIndex="-1">
+                    tabIndex="-1"
+                    role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="${_s.a11y.inputAriaLabel}"
+                    aria-autocomplete="list"
+                    aria-owns="${this.__uid}-dd"
+                    ${lang ? `lang="${lang}"` : ''}>
                     ${this.settings.templates.input.call(this)}
                 ${ZERO_WIDTH_UNICODE_CHAR}
+                <span class="${_s.classNames.namespace}__sr-only" aria-live="polite" aria-atomic="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0"></span>
         </tags>`
     },
 
@@ -28,8 +38,11 @@ export default {
                     autocapitalize="false"
                     autocorrect="off"
                     aria-label="${_s.a11y.inputAriaLabel}"
-                    aria-autocomplete="both"
-                    aria-multiline="${_s.mode=='mix'?true:false}"></span>`
+                    aria-autocomplete="list"
+                    aria-multiline="${_s.mode=='mix'?true:false}"
+                    aria-controls="${this.__uid}-dd"
+                    aria-activedescendant=""
+                    aria-keyshortcuts="ArrowUp ArrowDown Enter Escape Tab"></span>`
     },
 
     tag(tagData, {settings: _s}){
@@ -37,8 +50,9 @@ export default {
                     contenteditable='false'
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
+                    aria-selected="false"
                     ${this.getAttributes(tagData)}>
-            <x title='' tabIndex="${_s.a11y.focusableTags ? 0 : -1}" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
+            <x tabIndex="0" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
                 <span ${_s.mode === 'select' && _s.userInput ? "contenteditable='true'" : ''} autocapitalize="false" autocorrect="off" spellcheck='false' class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
@@ -49,9 +63,11 @@ export default {
         var _sd = settings.dropdown,
             isManual = _sd.position == 'manual';
 
-        return `<div class="${isManual ? '' : settings.classNames.dropdown } ${_sd.classname}" role="listbox" aria-labelledby="dropdown" dir="${_sd.RTL ? 'rtl' : ''}">
+        return `<div id="${this.__uid}-dd" class="${isManual ? '' : settings.classNames.dropdown } ${_sd.classname}" role="listbox" aria-labelledby="${this.__uid}" aria-multiselectable="${settings.mode === 'select' ? 'false' : 'true'}" dir="${_sd.RTL ? 'rtl' : ''}">
                     <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`
+
+
     },
 
     dropdownContent(HTMLContent) {
@@ -83,7 +99,7 @@ export default {
         var hasMore = suggestions.length - this.settings.dropdown.maxItems;
 
         return hasMore > 0
-            ? `<footer data-selector='tagify-suggestions-footer' class="${this.settings.classNames.dropdownFooter}">
+            ? `<footer data-selector='tagify-suggestions-footer' class="${this.settings.classNames.dropdownFooter}" role="status">
                 ${hasMore} more items. Refine your search.
             </footer>`
             : '';
